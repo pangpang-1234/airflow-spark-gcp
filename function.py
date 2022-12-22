@@ -16,7 +16,7 @@ class Func:
         self.PROJECT_ID = Variable.get('projectid')
         self.JSON_KEY = os.environ.get("KEY")
         
-        # Create client connections
+        # Create client 
         self.STORAGE_CLIENT = storage.Client(self.JSON_KEY)
         self.BIGQUERY_CLIENT = bigquery.Client(self.JSON_KEY)
 
@@ -28,7 +28,7 @@ class Func:
         # Define dataproc variables
         self.CLUSTER_NAME = "airflow-cluster"
         self.REGION = "us-central1"
-        self.PYSPARK_URI = "gs://asia-southeast1-airflow-gcp-f7bf289c-bucket/dags/sparkprocess.py"
+        self.PYSPARK_URI = "gs://asia-southeast1-airflow-gcp-804d30b2-bucket/dags/sparkprocess.py"
 
         # Define cluster detail
         self.CLUSTER_CONFIG = {
@@ -59,7 +59,7 @@ class Func:
                 "disk_config": {"boot_disk_type": "pd-standard", "boot_disk_size_gb": 512},
             },
             
-            # Define when to selete
+            # Define when to delete
             "lifecycle_config" : {
                 
                 # Delete cluster if idle more than 15 mins 
@@ -107,7 +107,7 @@ class Func:
             all_year = BIGQUERY_CLIENT.query(all_year_query).to_dataframe()['Y'].tolist()       
             print(f"select all {all_year}, {type(all_year)}")
         
-        # If select year ex. [2021], [2021, 2022] etc.
+        # If select year ex. ][2021, [2021, 2022] etc.
         else:
             
             # Define variables
@@ -158,7 +158,7 @@ class Func:
                         
                         # Query view 
                         view.view_query = f"""SELECT * FROM `{source_id}` WHERE EXTRACT(MONTH FROM Date) >= {start} AND EXTRACT(MONTH FROM Date) <= {end}
-                                            AND EXTRACT(MONTH FROM Date) = {year}"""  
+                                            AND EXTRACT(YEAR FROM Date) = {year}"""  
                                             
                         # Increase variables for counting month in each quarter          
                         start, end = start + 3, end + 3
@@ -173,7 +173,7 @@ class Func:
                         
                         # Query view
                         view.view_query = f"""SELECT * FROM `{source_id}` WHERE EXTRACT({FREQUENCY} FROM Date) = {freq} 
-                                            AND EXTRACT(MONTH FROM Date) = {year}"""
+                                            AND EXTRACT(YEAR FROM Date) = {year}"""
                     
                     # Create view                                                                            
                     view = BIGQUERY_CLIENT.create_table(view)
