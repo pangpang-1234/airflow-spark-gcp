@@ -5,7 +5,7 @@ frequency_partition : str >> Month, Quarter, Year
 
 select_year : list >> [] is select all, [2018, 2019] select only 2018 and 2019
 
-Ex.
+<b>Ex.<b>
 
 cryptocurrency : "BTC"
 
