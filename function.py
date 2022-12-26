@@ -142,6 +142,8 @@ class Func:
                 # Query data from GBQ using above SQL statement and cast to list
                 period = BIGQUERY_CLIENT.query(query_freq).to_dataframe()['M'].tolist()
                 
+                max_month = max(period)
+                
                 # Iterate over period list
                 for freq in period:
                     
@@ -149,7 +151,7 @@ class Func:
                     if FREQUENCY == "QUARTER":
                         
                         # Break this loop when end greater than 12
-                        if end > 12:
+                        if end > max_month:
                             break
                         
                         # Define view id
