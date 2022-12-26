@@ -59,7 +59,7 @@ class Func:
                 "disk_config": {"boot_disk_type": "pd-standard", "boot_disk_size_gb": 512},
             },
             
-            # Define when to delete
+            # Define cluster life cycle
             "lifecycle_config" : {
                 
                 # Delete cluster if idle more than 15 mins 
