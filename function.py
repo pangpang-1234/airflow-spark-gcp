@@ -13,8 +13,8 @@ class Func:
         self.YEAR = "{{params.select_year}}"
         
         # Get variable from airflow environment 
-        self.PROJECT_ID = Variable.get('projectid')
-        self.JSON_KEY = os.environ.get("KEY")
+        self.PROJECT_ID = Variable.get("projectid")
+        self.JSON_KEY = os.environ.get("key")
         
         # Create client 
         self.STORAGE_CLIENT = storage.Client(self.JSON_KEY)
@@ -28,7 +28,7 @@ class Func:
         # Define dataproc variables
         self.CLUSTER_NAME = "airflow-cluster"
         self.REGION = "us-central1"
-        self.PYSPARK_URI = "gs://asia-southeast1-airflow-gcp-804d30b2-bucket/dags/sparkprocess.py"
+        self.PYSPARK_URI = "gs://airflow-spark-process/sparkprocess.py"
 
         # Define cluster detail
         self.CLUSTER_CONFIG = {

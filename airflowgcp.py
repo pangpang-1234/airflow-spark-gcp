@@ -3,12 +3,11 @@ from airflow.models import BaseOperator
 from airflow import DAG
 from datetime import datetime, timedelta
 from airflow.operators.dummy_operator import DummyOperator
-from airflow.providers.google.cloud.operators.gcs import GCSCreateBucketOperator
 from airflow.utils.dates import days_ago
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryCreateEmptyDatasetOperator
 from airflow.providers.google.cloud.operators.dataproc import (
-    DataprocCreateClusterOperator, DataprocSubmitJobOperator, DataprocDeleteClusterOperator
+    DataprocCreateClusterOperator, DataprocSubmitJobOperator
 )  
 
 t = T()
@@ -75,8 +74,8 @@ with DAG(
         # # Create dataset for partitioned tables
         partition_dataset = BigQueryCreateEmptyDatasetOperator(task_id='create_partition_dataset', dataset_id=t.PARTITION_DATASET)
         
-        # Create partition tables
-        partition_table = PythonOperator(
+        # Create partition views
+        partition_view = PythonOperator(
             task_id='create_partition_view',
             python_callable=t.create_partition_view,
             op_kwargs={'BIGQUERY_CLIENT':t.BIGQUERY_CLIENT, 'PARTITION_DATASET':t.PARTITION_DATASET, 
@@ -84,9 +83,8 @@ with DAG(
                        'CRYPTOCURRENCY':t.CRYPTOCURRENCY, 'YEAR':t.YEAR}
         ) 
         
-        start >> clear_data >> create_dataset >> create_cluster >> submit_job >> partition_dataset >> partition_table
-        # start >> submit_job >> partition_dataset >> partition_table
-        # start >> partition_dataset >> partition_table
+        start >> clear_data >> create_dataset >> create_cluster >> submit_job >> partition_dataset >> partition_view
+        
 
         
         

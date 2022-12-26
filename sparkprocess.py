@@ -2,7 +2,7 @@ import argparse
 from pyspark import SparkContext
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
-from pyspark.sql.types import DateType, DoubleType
+from pyspark.sql.types import DateType, DoubleType, StructType, StructField
 from google.cloud import storage
 from google.cloud import bigquery
 
@@ -27,6 +27,17 @@ spark = SparkSession.builder \
   .config('spark.jars.packages','com.google.cloud.spark:spark-bigquery-with-dependencies_2.12:0.24.2') \
   .getOrCreate()
 
+# Define dataframe schema
+df_schema = StructType([ 
+    StructField("Date",DateType(),True), 
+    StructField("Open",DoubleType(),True), 
+    StructField("High",DoubleType(),True), 
+    StructField("Low", DoubleType(), True), 
+    StructField("Close", DoubleType(), True), 
+    StructField("Adj Close", DoubleType(), True),
+    StructField("Volume", DoubleType(), True)
+  ])
+
 # List blob
 blobs = storage.Client().list_blobs(BUCKET_NAME)
 
@@ -36,7 +47,7 @@ for blob in blobs:
     if CRYPTOCURRENCY in blob.name:
       
         # Read csv from GCS bucket
-        df = spark.read.csv(f'gs://{BUCKET_NAME}/{blob.name}', header=True)
+        df = spark.read.csv(f'gs://{BUCKET_NAME}/{blob.name}', header=True, schema=df_schema)
 
 # Add column Average which find average from Open, High, Low column
 marksColumns = [F.col('Open'), F.col('High'), F.col('Low')]
@@ -46,15 +57,8 @@ df=df.withColumn('Average', averageFunc)
 # Add column VolumeDivClose which divide Volume by Close
 df=df.withColumn('VolumeDivClose', F.col('Volume') / F.col('Close'))
 
-# Cast column Date to Datetype
-df=df.withColumn('Date', F.col('Date').cast(DateType())) \
-    .withColumn('Open', F.col('Open').cast(DoubleType())) \
-    .withColumn('High', F.col('High').cast(DoubleType())) \
-    .withColumn('Low', F.col('Low').cast(DoubleType())) \
-    .withColumn('Close', F.col('Close').cast(DoubleType())) \
-    .withColumn('Adj Close', F.col('Adj Close').cast(DoubleType())) \
-    .withColumn('Volume', F.col('Volume').cast(DoubleType())) \
-    .withColumn('Average', F.col('Average').cast(DoubleType())) \
+# Cast column Data type
+df=df.withColumn('Average', F.col('Average').cast(DoubleType())) \
     .withColumn('VolumeDivClose', F.col('VolumeDivClose').cast(DoubleType())) \
 
 # Add column Max which find max value in each row
